@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>george-shepov Pages Hub</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --ink: #172033;
+      --muted: #5f6b82;
+      --line: #dce3f1;
+      --accent: #0069d9;
+      --accent-2: #00a48a;
+      --shadow: 0 12px 32px rgba(12, 30, 66, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1100px 500px at -5% -10%, #dbe9ff 0%, transparent 65%),
+        radial-gradient(1000px 420px at 105% -10%, #d8fff6 0%, transparent 60%),
+        var(--bg);
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 44px;
+    }
+    .hero {
+      background: linear-gradient(135deg, #0e2440, #0b3555 58%, #0b4f66);
+      color: #f2f7ff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      letter-spacing: 0.2px;
+    }
+    .hero p {
+      margin: 8px 0 0;
+      color: #c9def8;
+      font-size: 0.98rem;
+    }
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 16px 0 20px;
+    }
+    .search {
+      flex: 1 1 280px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 0.95rem;
+      color: var(--ink);
+    }
+    .status {
+      background: #eaf3ff;
+      color: #16407d;
+      border: 1px solid #c7dbff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      min-height: 42px;
+      display: grid;
+      align-items: center;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+    .card {
+      display: grid;
+      gap: 6px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(17, 35, 72, 0.08);
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+    .name {
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.15px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .name:hover { color: var(--accent); }
+    .repo-link {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .repo-link:hover { color: var(--accent); }
+    .desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.38;
+      min-height: 1.2em;
+    }
+    .meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      font-size: 0.74rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 3px 9px;
+      letter-spacing: 0.2px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: #f8fbff;
+    }
+    .pill.home {
+      color: #07596a;
+      background: #dcfffa;
+      border-color: #a8efe5;
+    }
+    .pill.project {
+      color: #0648ad;
+      background: #e8f1ff;
+      border-color: #bfd7ff;
+    }
+    .empty {
+      background: #fff;
+      border: 1px dashed #bcc8df;
+      border-radius: 12px;
+      padding: 20px;
+      color: #586685;
+      text-align: center;
+    }
+    footer {
+      margin-top: 24px;
+      color: #5f6b82;
+      font-size: 0.82rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>george-shepov GitHub Pages</h1>
+      <p>Directory of all repositories with GitHub Pages enabled.</p>
+    </section>
+
+    <div class="toolbar">
+      <input id="q" class="search" placeholder="Filter by repo name or description" aria-label="Filter sites">
+      <div id="status" class="status">Loading pages sites...</div>
+    </div>
+
+    <main id="list" class="list" aria-live="polite"></main>
+
+    <footer>
+      Data source: GitHub REST API for user repositories.
+    </footer>
+  </div>
+
+  <script>
+    const USER = "george-shepov";
+
+    function pageUrl(repo) {
+      const homepage = (repo.homepage || "").trim();
+      if (homepage) return homepage;
+      return `https://${USER}.github.io/${repo.name}/`;
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;");
+    }
+
+    function render(repos, query) {
+      const q = (query || "").trim().toLowerCase();
+      const filtered = repos.filter((r) => {
+        if (!q) return true;
+        return r.name.toLowerCase().includes(q) || (r.description || "").toLowerCase().includes(q);
+      });
+
+      const list = document.getElementById("list");
+      if (!filtered.length) {
+        list.innerHTML = '<div class="empty">No GitHub Pages repos match this filter.</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map((repo) => {
+        const url = pageUrl(repo);
+        const hostType = repo.homepage ? "Custom/Homepage" : "Project Pages";
+        return `
+          <article class="card">
+            <div class="top">
+              <a class="name" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(repo.name)}</a>
+              <a class="repo-link" href="${repo.html_url}" target="_blank" rel="noopener noreferrer">Repository</a>
+            </div>
+            <div class="desc">${escapeHtml(repo.description || "No description")}</div>
+            <div class="meta">
+              <span class="pill ${repo.homepage ? "home" : "project"}">${hostType}</span>
+              <span class="pill">Updated ${new Date(repo.updated_at).toLocaleDateString()}</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function fetchAllReposWithPages() {
+      const out = [];
+      for (let page = 1; page <= 10; page += 1) {
+        const url = `https://api.github.com/users/${USER}/repos?per_page=100&page=${page}&sort=updated`;
+        const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+        if (!res.ok) throw new Error(`GitHub API error ${res.status}`);
+        const rows = await res.json();
+        if (!rows.length) break;
+        for (const repo of rows) {
+          if (repo.has_pages) out.push(repo);
+        }
+      }
+      out.sort((a, b) => a.name.localeCompare(b.name));
+      return out;
+    }
+
+    (async () => {
+      const status = document.getElementById("status");
+      const q = document.getElementById("q");
+      try {
+        const repos = await fetchAllReposWithPages();
+        status.textContent = `${repos.length} repositories with GitHub Pages enabled.`;
+        render(repos, "");
+        q.addEventListener("input", () => render(repos, q.value));
+      } catch (err) {
+        document.getElementById("list").innerHTML = '<div class="empty">Failed to load repos from GitHub API.</div>';
+        status.textContent = "Could not fetch GitHub Pages repositories right now.";
+      }
+    })();
+  </script>
+</body>
+</html>
