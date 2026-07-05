@@ -3,9 +3,9 @@ title: LODEX Software
 permalink: /lodex/
 ---
 
-# LODEX SOFTWARE
+![LODEX Software](logo.svg)
 
-### Practical software built around real work.
+# Practical software built around real work.
 
 **Established October 2000 · Cleveland, Ohio**
 
