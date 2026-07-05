@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" role="img" aria-labelledby="title desc">
+  <title id="title">LODEX Software</title>
+  <desc id="desc">White LODEX lettering on black with a blue right half of the X and spaced SOFTWARE below.</desc>
+  <rect width="1254" height="1254" fill="#000"/>
+  <g font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="590" y="668" fill="#fff" font-size="280" font-weight="900" letter-spacing="-24">LODEX</text>
+    <path d="M1030 466h62l-94 100 94 102h-62l-64-72-64 72h-62l94-102-94-100h62l64 70z" fill="#fff"/>
+    <path d="M998 566l94-100h62l-94 100 94 102h-62z" fill="#1684ff"/>
+    <text x="627" y="790" fill="#fff" font-size="95" font-weight="300" letter-spacing="35">SOFTWARE</text>
+  </g>
+</svg>
